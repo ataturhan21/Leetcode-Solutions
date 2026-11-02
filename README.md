@@ -24,3 +24,7 @@ python3 scripts/build_index.py --check
 ```
 
 The generator scans filenames only; it does not import or execute submissions. Commit the updated `docs/solutions-*.md` files when adding or removing solutions.
+
+## License
+
+[MIT](LICENSE).
