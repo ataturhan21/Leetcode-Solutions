@@ -37,6 +37,18 @@ class IndexTests(unittest.TestCase):
             self.assertIn(r"1-a\[b\]c", text)
             self.assertIn("../1-a%5Bb%5Dc/nested%20folder/solution%20%5Bv2%5D.py", text)
 
+    def test_notes_column_links_existing_notes_only(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in ["1-with-notes/a.py", "1-with-notes/Notes.md", "2-plain/b.py"]:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.touch()
+            text = indexer.build_indexes(root)[Path("docs/solutions-python.md")]
+            self.assertIn("| Problem directory | Solution | Notes |", text)
+            self.assertIn("[a.py](../1-with-notes/a.py) | [Notes](../1-with-notes/Notes.md) |", text)
+            self.assertIn("[b.py](../2-plain/b.py) |  |", text)
+
     def test_markdown_label_escapes_table_characters(self):
         self.assertEqual(indexer.markdown_label(r"1-a[b]|c\d"), r"1-a\[b\]\|c\\d")
 
