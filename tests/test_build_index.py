@@ -48,6 +48,8 @@ class IndexTests(unittest.TestCase):
             self.assertIn("| Problem directory | Solution | Notes |", text)
             self.assertIn("[a.py](../1-with-notes/a.py) | [Notes](../1-with-notes/Notes.md) |", text)
             self.assertIn("[b.py](../2-plain/b.py) |  |", text)
+            self.assertIn("\n2 Python solution files.\n", text)
+            self.assertIn("\n0 SQL solution files.\n", indexer.build_indexes(root)[Path("docs/solutions-sql.md")])
 
     def test_markdown_label_escapes_table_characters(self):
         self.assertEqual(indexer.markdown_label(r"1-a[b]|c\d"), r"1-a\[b\]\|c\\d")
