@@ -29,7 +29,10 @@ def build_indexes(root):
             notes = folder / "Notes.md"
             notes_link = ""
             if notes.is_file():
-                notes_link = "[Notes](../" + quote(notes.relative_to(root).as_posix(), safe="/") + ")"
+                # LeetSync notes record "[ Time taken: 17 m 17 s ]"; show that value as the link text.
+                recorded = re.search(r"Time taken:\s*([^\]\n]+?)\s*\]", notes.read_text(encoding="utf-8", errors="replace"))
+                label = markdown_label(recorded.group(1)) if recorded else "Notes"
+                notes_link = f"[{label}](../" + quote(notes.relative_to(root).as_posix(), safe="/") + ")"
             for solution in sorted(folder.rglob("*" + extension)):
                 if not solution.is_file():
                     continue
@@ -48,7 +51,7 @@ def build_indexes(root):
             "",
             f"{len(rows)} {language} solution file{'' if len(rows) == 1 else 's'}.",
             "",
-            "| Problem directory | Solution | Notes |",
+            "| Problem directory | Solution | Time taken (Notes.md) |",
             "| --- | --- | --- |",
             *rows,
         ]

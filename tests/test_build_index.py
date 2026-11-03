@@ -44,11 +44,16 @@ class IndexTests(unittest.TestCase):
                 path = root / name
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.touch()
+            (root / "3-timed/c.py").parent.mkdir()
+            (root / "3-timed/c.py").touch()
+            (root / "3-timed/Notes.md").write_text(
+                "<h2>timed Notes</h2><hr>[ Time taken: 17 m 17 s ]", encoding="utf-8")
             text = indexer.build_indexes(root)[Path("docs/solutions-python.md")]
-            self.assertIn("| Problem directory | Solution | Notes |", text)
+            self.assertIn("| Problem directory | Solution | Time taken (Notes.md) |", text)
             self.assertIn("[a.py](../1-with-notes/a.py) | [Notes](../1-with-notes/Notes.md) |", text)
+            self.assertIn("[c.py](../3-timed/c.py) | [17 m 17 s](../3-timed/Notes.md) |", text)
             self.assertIn("[b.py](../2-plain/b.py) |  |", text)
-            self.assertIn("\n2 Python solution files.\n", text)
+            self.assertIn("\n3 Python solution files.\n", text)
             self.assertIn("\n0 SQL solution files.\n", indexer.build_indexes(root)[Path("docs/solutions-sql.md")])
 
     def test_markdown_label_escapes_table_characters(self):
