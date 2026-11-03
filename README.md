@@ -26,7 +26,7 @@ python3 -m unittest discover -s tests -v
 
 The last command runs the generator's own tests, as CI does.
 
-The generator scans filenames only; it does not import or execute submissions. Commit the updated `docs/solutions-*.md` files when adding or removing solutions.
+The generator scans filenames and reads `Notes.md` text; it does not import or execute submissions. Commit the updated `docs/solutions-*.md` files when adding or removing solutions.
 
 ## License
 
