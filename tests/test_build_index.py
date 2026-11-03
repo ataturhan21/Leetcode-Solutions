@@ -28,12 +28,17 @@ class IndexTests(unittest.TestCase):
     def test_nested_paths_and_markdown_characters(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            path = root / "1-a[b]|c" / "nested folder" / "solution [v2].py"
+            # "|" is not a valid filename character on Windows, so the
+            # filesystem part uses brackets and spaces only.
+            path = root / "1-a[b]c" / "nested folder" / "solution [v2].py"
             path.parent.mkdir(parents=True)
             path.touch()
             text = indexer.build_indexes(root)[Path("docs/solutions-python.md")]
-            self.assertIn(r"1-a\[b\]\|c", text)
-            self.assertIn("../1-a%5Bb%5D%7Cc/nested%20folder/solution%20%5Bv2%5D.py", text)
+            self.assertIn(r"1-a\[b\]c", text)
+            self.assertIn("../1-a%5Bb%5Dc/nested%20folder/solution%20%5Bv2%5D.py", text)
+
+    def test_markdown_label_escapes_table_characters(self):
+        self.assertEqual(indexer.markdown_label(r"1-a[b]|c\d"), r"1-a\[b\]\|c\\d")
 
     def test_empty_tree_and_repeat_runs_are_deterministic(self):
         with tempfile.TemporaryDirectory() as directory:
