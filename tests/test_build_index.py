@@ -28,12 +28,36 @@ class IndexTests(unittest.TestCase):
     def test_nested_paths_and_markdown_characters(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            path = root / "1-a[b]|c" / "nested folder" / "solution [v2].py"
+            # "|" is not a valid filename character on Windows, so the
+            # filesystem part uses brackets and spaces only.
+            path = root / "1-a[b]c" / "nested folder" / "solution [v2].py"
             path.parent.mkdir(parents=True)
             path.touch()
             text = indexer.build_indexes(root)[Path("docs/solutions-python.md")]
-            self.assertIn(r"1-a\[b\]\|c", text)
-            self.assertIn("../1-a%5Bb%5D%7Cc/nested%20folder/solution%20%5Bv2%5D.py", text)
+            self.assertIn(r"1-a\[b\]c", text)
+            self.assertIn("../1-a%5Bb%5Dc/nested%20folder/solution%20%5Bv2%5D.py", text)
+
+    def test_notes_column_links_existing_notes_only(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in ["1-with-notes/a.py", "1-with-notes/Notes.md", "2-plain/b.py"]:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.touch()
+            (root / "3-timed/c.py").parent.mkdir()
+            (root / "3-timed/c.py").touch()
+            (root / "3-timed/Notes.md").write_text(
+                "<h2>timed Notes</h2><hr>[ Time taken: 17 m 17 s ]", encoding="utf-8")
+            text = indexer.build_indexes(root)[Path("docs/solutions-python.md")]
+            self.assertIn("| Problem directory | Solution | Time taken (Notes.md) |", text)
+            self.assertIn("[a.py](../1-with-notes/a.py) | [Notes](../1-with-notes/Notes.md) |", text)
+            self.assertIn("[c.py](../3-timed/c.py) | [17 m 17 s](../3-timed/Notes.md) |", text)
+            self.assertIn("[b.py](../2-plain/b.py) |  |", text)
+            self.assertIn("\n3 Python solution files.\n", text)
+            self.assertIn("\n0 SQL solution files.\n", indexer.build_indexes(root)[Path("docs/solutions-sql.md")])
+
+    def test_markdown_label_escapes_table_characters(self):
+        self.assertEqual(indexer.markdown_label(r"1-a[b]|c\d"), r"1-a\[b\]\|c\\d")
 
     def test_empty_tree_and_repeat_runs_are_deterministic(self):
         with tempfile.TemporaryDirectory() as directory:
