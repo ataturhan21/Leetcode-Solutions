@@ -28,6 +28,6 @@ The last command runs the generator's own tests, as CI does.
 
 The generator scans filenames and reads `Notes.md` text; it does not import or execute submissions. Commit the updated `docs/solutions-*.md` files when adding or removing solutions.
 
-## License
+## Copyright
 
-[MIT](LICENSE).
+© Ata Turhan. All rights reserved. This repository has no open-source license: its code may not be copied, modified or redistributed.
